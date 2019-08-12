@@ -1,4 +1,4 @@
-FROM golang:1.12.7 as builder
+FROM golang:1.12.7-stretch  as builder
 
 ENV SCRIPTS=/scripts
 ENV GO111MODULE=on CGO_ENABLED=1 UNIT_BINARIES=/test/bin/unit INTEGRATION_BIN=/test/bin/integration CMD_BIN=/cmd/bin PATH="${SCRIPTS}:${PATH}"
