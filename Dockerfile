@@ -6,31 +6,18 @@ ENV GO_TEST="go test -count=1 -mod vendor"
 
 RUN mkdir -p $SCRIPTS $UNIT_BINARIES $INTEGRATION_BIN $CMD_BIN
 
-### Build test binaries scripts
-RUN printf '%s\n' \
-'#!/bin/sh' \
-'for d in $(go list -mod vendor -f "{{ .Dir }}" ./internal/... | grep -v /cmd/);' \
-    'do' \
-        'output=$(basename $d);' \
-        ''"$GO_TEST"' -c $d -o '"$UNIT_BINARIES"'/$output.unit -ldflags="-w -s" -race -covermode=atomic;' \
-    'done;' \
-> $SCRIPTS/build-unit-bin; chmod +x $SCRIPTS/build-unit-bin;
+COPY ./build-unit-bin.sh /scripts/build-unit-bin
+RUN chmod +x /scripts/build-unit-bin;
 
-RUN printf '%s\n' \
-'#!/bin/sh' \
-'for d in $(go list -mod vendor -f "{{ .Dir }}" ./internal/cmd/... | grep /test/);' \
-    'do' \
-        'output=$(basename $(dirname $(dirname $d)));' \
-        ''"$GO_TEST"' -c $d -o '"$INTEGRATION_BIN"'/$output.integration -ldflags="-w -s" -race;' \
-    'done;' \
-> $SCRIPTS/build-integration-bin; chmod +x $SCRIPTS/build-integration-bin;
+COPY ./build-integration-bin.sh /scripts/build-integration-bin
+RUN chmod +x /scripts/build-integration-bin;
 
-RUN printf '%s\n' \
-'#!/bin/sh' \
-'for d in $(go list -mod vendor -f "{{ .Dir }}" ./cmd/...);' \
-    'do' \
-        'go build -o '"$CMD_BIN"'/$(basename $d) -mod vendor -ldflags="-w -s" -race $d;' \
-    'done;' \
-> $SCRIPTS/build-cmd-bin; chmod +x $SCRIPTS/build-cmd-bin;
+COPY ./build-cmd-bin.sh /scripts/build-cmd-bin
+RUN chmod +x /scripts/build-cmd-bin;
+
+COPY ./start.sh /scripts/start
+RUN chmod +x /scripts/start;
 
 WORKDIR /subject
+
+CMD ["start"]
