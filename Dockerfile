@@ -1,4 +1,10 @@
-FROM golang:1.12.7-stretch  as builder
+FROM golang:1.12.8-buster as builder
+
+RUN apt update && \
+ apt -y install apt-transport-https ca-certificates curl gnupg2 software-properties-common && \
+ curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+ apt update -y && apt install docker-ce -y
 
 ENV SCRIPTS=/scripts
 ENV GO111MODULE=on CGO_ENABLED=1 UNIT_BINARIES=/test/bin/unit INTEGRATION_BIN=/test/bin/integration CMD_BIN=/cmd/bin PATH="${SCRIPTS}:${PATH}"
